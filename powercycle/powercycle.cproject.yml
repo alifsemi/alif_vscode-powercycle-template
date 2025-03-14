@@ -1,0 +1,78 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Open-CMSIS-Pack/devtools/tools/projmgr/2.6.0/tools/projmgr/schemas/cproject.schema.json
+project:
+  groups:
+    - group: App
+      files:
+        - file: app_init.c
+        - file: POWER_DEMO_main.c
+        - file: POWER_DEMO_prints.c
+        - file: ../coremark/core_list_join.c
+        - file: ../coremark/core_main.c
+        - file: ../coremark/core_matrix.c
+        - file: ../coremark/core_state.c
+        - file: ../coremark/core_util.c
+        - file: ../coremark/barebones/core_portme.c
+        - file: ../coremark/barebones/cvt.c
+        - file: ../drv/debug_clks.c
+        - file: ../drv/debug_pwr.c
+        - file: ../drv/drv_counter.c
+        - file: ../drv/drv_lptimer.c
+        - file: ../drv/drv_pll.c
+        - file: ../drv/soc_clk.c
+        - file: ../npu/npu_baremetal.c
+        - file: ../npu/typical_memorymap_he.c
+        - file: ../npu/typical_reference_ofm_he.c
+        - file: ../npu/kws_reference.c
+        - file: ../npu/kws_micronet_m_vela_H128.tflite.c
+
+  output:
+    base-name: $Project$
+    type:
+      - elf
+      - bin
+  add-path:
+    - ../libs/board/
+    - ../drv/
+    - ../npu/
+    - ../coremark/
+    - ../coremark/barebones/
+
+  layers:
+    - layer: ../device/ensemble/alif-ensemble.clayer.yml
+      for-context:
+        - +HE
+        - +HP
+
+    - layer: ../device/e1c/alif-e1c.clayer.yml
+      for-context:
+        - +E1C
+  components:
+    - component: AlifSemiconductor::Device:SE runtime Services:Initialization
+        Helper&Source@1.3.0
+    - component: AlifSemiconductor::Device:Retarget IO:STDOUT@1.3.0
+      not-for-context:
+        - +E1C.debug
+        - +E1C.release
+    - component: AlifSemiconductor::Device:SE runtime Services:core&Source@1.101.0
+    - component: AlifSemiconductor::Device:Power Management
+      for-context:
+        - +E1C.debug
+        - +E1C.release
+    - component: AlifSemiconductor::Device:Retarget IO:STDOUT
+      for-context:
+        - +E1C.debug
+        - +E1C.release
+    - component: AlifSemiconductor::Device:Retarget IO:STDIN
+      for-context:
+        - +E1C.debug
+        - +E1C.release
+    - component: ARM::CMSIS-Compiler:I/O:STDIN&User@1.0.0
+      for-context:
+        - +E1C.debug
+        - +E1C.release
+    - component: ARM::CMSIS-Compiler:I/O:STDOUT&User@1.0.0
+      for-context:
+        - +E1C.debug
+        - +E1C.release
+  packs:
+    - pack: ARM::CMSIS-Compiler@1.0.0
