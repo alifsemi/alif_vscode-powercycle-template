@@ -1,132 +1,122 @@
-# Getting Started with VSCode CMSIS pack project
+<img src="images/media/image1.png" style="width:2.91597in;height:1.07292in" alt="A picture containing shape Description automatically generated" />
 
-This guide shows how to set up a VS Code environment with the Arm GNU tools and J-Link debugger under Windows. The same overall process can be used to create a Linux environment by installing Linux versions of the different tools listed and updating the paths appropriately in the different settings files.
+Application Note
 
-Installing and configuring other toolchains is not in the scope of the guide, but CMSIS Toolbox supports IAR and Arm toolchains and it is easy to change the compiler settings in CMSIS solution files.
-There are example build-type options for IAR and armclang in the solution.
+**E1C Power cycle demo**
 
-## Installing the tools
+**Version 1.0**
 
-- Install Visual Studio Code
-    - Begin by downloading [Visual Studio Code](https://code.visualstudio.com/download)
-    - While you can install Visual Studio Code using the installation executable, we recommend using the .zip package.
-    - Using .zip package will prevent VS Code from keeping its settings on per-user or per-system basis, allowing multiple installations to coexist without causing clashes in configuration and extensions.
-    - Unpack the VS Code .zip file to the installation directory of your choice.
-    - **TIP:** Inside the VS Code directory (Code.exe is present) create a folder named “data”. If present, VS Code will use this folder to store all the configuration and extensions data, keeping your VS Code installation fully self-contained and portable. This will allow you to have multiple installations present on your system.
+**  
+**
 
-- Install Alif Security Toolkit
-    - This can be found on the [Software & Tools page](https://alifsemi.com/support/software-tools/ensemble) of the Alif website under Support. You will have to log into the website with your Alif credentials to access this archive.
-    - Extract the Security Toolkit to a location of your choice. The path is needed when configuring Visual Studio Code (`settings.json`). In the example below the tools are extracted to C:\alif-se-tools <br>
-        ![Extract SE](images/extract_se.png)
+**STOP Mode Power Cycle Demo**
 
-- Install J-Link Software
-    - Download the latest stable version of the [J-Link Software](https://www.segger.com/downloads/jlink)
-    - Run the J-Link installer and make note of the installation directory specified. This information is needed when configuring Visual Studio Code (`settings.json`).
+This demo shows how to optimize the configuration of an Alif Ensemble or Balletto MCU to quickly cycle between GO and STOP power modes. For highly constrained battery-operated devices, minimizing the time spent active is a key requirement to achieving multiple days or weeks of battery life. In pursuit of minimizing the time spent active, Alif has optimized the boot and shut-down process to minimize the time spent in the transition between states. Time spent transitioning between states adds to the overall active time of the application, it results in wasted energy since this is time that the MCU is not spending in STOP Mode. The scope of this project is to demonstrate a configuration for the Alif MCU which can quickly enter and exit from MCU STOP Mode in 1 millisecond or less.
 
-- Install Git (for Windows)
-    - Download [Git for Windows](https://git-scm.com/download/win)
-    - During Git installation, select the recommended setting for PATH environment variable
-        ![Git install](images/git_install.png)
+The sample project demonstrates the following Alif MCU features
 
-## Get the project source code
+- MCU STOP Mode: a low-power mode consuming a handful of microwatts
 
-- Clone the template project using Git
+- SRAM Retention: keep code and data retained in fast SRAM while the MCU is stopped
 
-```
-git clone https://github.com/alifsemi/alif_vscode-template.git
-cd alif_vscode-template
-git submodule update --init
-```
-  ![Git clone in Windows terminal](images/git_clone.png)
+- Terminal Interface: type in the use case details (time spent on/off) when prompted
 
-## Visual Studio Code start up and the environment activation
+- NPU Power Test: run Keyword Spotting (MicroNet Medium) on a sample of audio
 
-- Now run VS Code for the first time by launching Code.exe. Since this installation uses its own local configuration, the first-time setup wizard will be shown even if there are other VS Code instances on your machine. Adjust the personalization settings and dismiss the wizard window.
+Following this guide you’ll be able to build and run this project to measure your own boot times.
 
-- Use “Open Folder” to open the cloned project.
+This project is equipped with a terminal interface that will be launched after programming this demo to the Alif MCU. This terminal interface will prompt you to enter a few use case details. The first prompt asks for the "application duty cycle". This is used to define how often the MCU will wake from stop mode. Entering 100, for example, the MCU will enter stop mode and wake precisely every 100 milliseconds. The second prompt asks for the "time spent running while(1)". This defines how long the MCU will stay awake and would, for example, represent the time spent doing sensor data gathering before returning to stop mode. This should be a fraction of the previous entry. The final prompt asks for the "number of inferences" to run on the NPU. Typically enter 1 here. Every ten power cycles, the application will exercise the NPU, and the length of time spent exercising the NPU depends on the number entered in the final prompt.
 
-- After opening the project there will be multiple security, firewall and licensing related prompts which you need to accept to keep going.
-- Click “Yes, I trust the authors” in the pop-up prompt.<br>
-  ![Trust authors](images/trust_authors.png)
-- Install recommended extensions<br>
-  ![Install recommended](images/install_recommended.png)
-- Allow VS Code network access<br>
-  ![Network access](images/vscode_network_access.png)
+Using a power analyzer, it is possible to monitor the MCU power draw in real-time as the MCU transitions between the GO and STOP power modes. It should also be possible to calculate the average power draw (for battery life estimates) and experiment with different combinations for the use case inputs.
 
-- When the extensions are installed the Arm Envinronment Manager starts loading the configured tools.
-- **TIP:** Default installation location of artifacts is under <user>\.vcpkg (This can be changed by setting the VCPKG_ROOT environment variable)
-- You need to allow the activation.<br>
-  ![AEM activation](images/aem_activation.png)
+**Before Starting:**
 
-- In Windows environment you may bump into long pathname support.<br>
-  ![Long pathname support](images/long_pathname.png)
-- In this case either use Registry Editor or run PowerShell as Administrator and execute
+If you have not yet set up your Alif development environment using VS Code, please first visit the “[Getting Started with VSCode](https://github.com/alifsemi/alif_vscode-template/blob/main/doc/getting_started.md)” Guide. Ensure that you are able to build and run the blinky demo on your Alif DevKit before following this guide.
 
-```
-New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
-```
+**Hardware Quick Start:**
 
-- If you had to enable the support: Click the "Arm Tools" in the status bar and then click "Activate Environment"
-- Successful environment activation can be seen in the status bar. **Please wait patiently, VS Code is eager to push notifications of uninstalled goodies, do not click those while environment activation is ongoing.**<br>
-  ![Activation](images/activation_ok.png)
+1.  Balletto DevKit (Rev. B) and micro-USB cable
 
-## Visual Studio Code settings
+2.  Joulescope Power Analyzer
 
-- Settings are needed for J-link debugging and Alif SE tools integration
-- Press F1 in VS Code, start typing "User", click "Preferences: Open User Settings (JSON)
-- Add the following configuration variables (Please note where you actually installed J-Link and Alif SE tools)
+Remove power to the Alif DevKit before beginning to attach the Joulescope:
 
-```
-{
-    "alif.setools.root" : "C:/alif-se-tools/app-release-exec",
-    "cortex-debug.JLinkGDBServerPath": "C:/Program Files/SEGGER/JLink/JLinkGDBServerCL.exe"
-}
-```
+1.  Remove shunt on JP1, this disconnects the “USB_V” 3V3 supply.
 
-## Building the project with CMSIS solution
+2.  Remove shunt on JP3, this disconnects the “SOC_PWR” supply.
 
-- Click the CMSIS icon on the left sidebar and the CMSIS solution view opens up.<br>
-  ![CMSIS solution](images/cmsis_solution.png)
-- Clicking the Settings icon (sprocket) lets you choose the target processor, active project and the build type.<br>
-  ![Build context](images/build_context.png)
-- Clicking the Build icon (hammer) builds the project with selected context
-- These tasks and more can be found by pressing F1 and typing CMSIS
-- Some of the CMSIS tasks you may find useful are:
-    - CMSIS: Install Required Packs for Active Solution - If you edit the pack requirements in the “alif.csolution.yaml” file before running this command, any packs not already available will be installed.
-    - CMSIS: Rebuild
-- There is also a couple of custom tasks in the template project (Press F1, type "Run", click "Tasks: Run Task")
-  - Clean all
-  - First Time Pack Installation
-  - SE tools integration tasks
+3.  Attach Joulescope Current+ terminal to pin 3 of JP3 and Current- terminal to pin 2 of JP3 
 
-- **TIP:** Without setting CMSIS_PACK_ROOT environment variable the CMSIS packs go under AppData (<user>\AppData\Local\Arm\Packs)
+4.  Attach Joulescope Voltage- terminal to pin 1 of J9, J10, J11, or J14 (GND) 
 
-## Programming the target with Alif Security Toolkit
+5.  Attach Joulescope Voltage+ terminal to pin 6 of J9, J10, or J11 (1.8V supply) 
 
-- Press F1, type "Run", click "Tasks: Run Task"
-- Select "Program with Security Toolkit"
+Now plug in the micro-USB cable to the “PRG USB” connector on the DevKit. You should see two serial ports appear on your machine. The first serial port is for SE UART and is meant to be used with the Alif Security Toolkit.
 
-## Starting a Cortex-Debug session
+<img src="images/media/image2.jpeg" style="width:3.70139in;height:4.93518in" alt="A close-up of a circuit board AI-generated content may be incorrect." />
 
-- From the CMSIS solution view click the debug icon
-- Or call the task CMSIS: Debug
-- By default the project uses J-link and Cortex-Debug and does a "launch" instead of "attach". You can change this behaviour by editing `launch.json`
-- **TIP:** You may want to use SE tools integration to install the CPU stubs
+The second port is configured for LP UART and is used by this demo.
 
-## SEGGER RTT with Cortex-Debug
+Open a terminal connecting to the second port and configure the speed for 115200.
 
-This `hello_rtt` example uses a preinstalled SEGGER RTT library. Please note that this is taken from JLink v796 release so you might need to update it to your version.<br>
+<img src="images/media/image3.jpeg" style="width:3.82813in;height:5.10417in" alt="A close-up of a circuit board AI-generated content may be incorrect." />
 
-Library sources are delivered with SEGGER JLink, so you can find it from your JLink installation directory. In Windows it is typically in `C:\Program Files\SEGGER\JLink_<VERSION>\Samples\RTT` and in Linux `/opt/SEGGER/JLink/Samples/RTT`.
+**Software Quick Start:**
 
-### Usage
+To start, clone the power cycle repo and then open the cloned directory in Visual Studio Code.
 
-- Compile application
-- Launch application
-- You should see a new RTT terminal in TERMINAL -window:
-  ![alt text](images/cortex_debug_rtt.png)
+\`\`\`
 
-## References
-- PDF [Getting Started Guide](https://alifsemi.com/download/AUGD0012) (With manual tools installation. Does not use Arm Environment Manager or CMSIS solution)
-- ARM Environment Manager [description](https://marketplace.visualstudio.com/items?itemName=Arm.environment-manager)
-- CMSIS-Toolbox [repository](https://github.com/Open-CMSIS-Pack/cmsis-toolbox)
+git clone https://github.com/alifsemi/alif_powercycle_vscode-template.git
+
+\`\`\`
+
+In VSCode, press F1 and select “Tasks: Run Task”. From the list of tasks, select “First time pack installation”. VS Code will exercise cpackget to obtain the necessary Alif and Arm pack files. Once completed, you should see “Pack installation has been completed” message in the console.
+
+If the pack installation is successful press F1 again and select "Tasks: Run Task".
+
+Press the build option from the CMSIS solution to build the environment. Ensure to choose the E1C as target in the build context.
+
+<img src="images/media/image4.png" style="width:6.19476in;height:2.50707in" alt="A screenshot of a computer AI-generated content may be incorrect." />
+
+<img src="images/media/image5.png" style="width:3.04167in;height:0.94444in" />
+
+Check that the build is successful. If the application was built press F1 once more and select "Tasks: Run Task". From the list of tasks select "Program with Security Toolkit".
+
+**After Programming**
+
+After programming this demo to the Alif MCU, you will be prompted to enter the use case details. The first prompt asks for the "application duty cycle". This is used for the wake period; it defines how often the MCU will wake from stop mode. Entering 100, for example, the MCU will enter stop mode and wake every 100 milliseconds. The second prompt asks for the "time spent running while(1)". This defines how long the MCU will stay awake before returning to stop mode. This should be a fraction of the previous entry. The final prompt asks for the "number of inferences" to run on the NPU. Typically enter 1 here. Every ten power cycles, the application will exercise the NPU, and the length of time spent exercising the NPU depends on the number entered in the final prompt. Using a power analyzer, it should be possible to monitor the current as the MCU transitions between the two power states and calculate the average current draw.
+
+<img src="images/media/image6.png" style="width:5.09054in;height:3.23628in" alt="A screenshot of a computer program AI-generated content may be incorrect." />
+
+The joulescope shows the power cycle when the application goes into the stop mode. The application duty cycle refers to time before the system boots back up to perform the NPU inferences and then moves back into the stop mode. A power spike is seen during NPU inferences.
+
+<img src="images/media/image7.png" style="width:6.5in;height:4.91944in" alt="A screen shot of a computer AI-generated content may be incorrect." />
+
+<img src="images/media/image8.png" style="width:6.5in;height:4.96111in" alt="A screenshot of a computer AI-generated content may be incorrect." />
+
+**Measure time between reset handler and main: (Optional)**
+
+The joulescope can additionally be used to measure the time taken by the program to jump between the reset handler and to the main. This is an optional measurement and the code for this has been added to the project. The output and the input pins of the joulescope can be used for poking the available GPIO pins and these can be measured in the software.
+
+Setup:
+
+1)Connect all the GND pins to the GND pins on the board. The GND pin is the pin 1 on J11, J10, J14.
+
+2)Connect OUT0 to Pin 7 on J11 which is the POR
+
+3)Connect the Vref to Pin 6 on J11 which is the 1.8V Vref.
+
+4)Connect IN0 pin2 of J10 which is the P5_0 (GPIO)
+
+5)Connect IN1 pin 7 of J10 which is the P5_4 (GPIO)
+
+In the startup code(system_M55.c), declare a weak function. Please see below
+
+<img src="images/media/image9.png" style="width:3.25711in;height:0.61114in" alt="A black rectangular object with a black line AI-generated content may be incorrect." />
+
+This function is defined in the app folder of the application in a separate C file (Refer to the app_init.c) Use this function to set any GPIO pin to 1 and set the direction of the GPIO as output. (in this example, P5_0 is set to 1).
+
+This GPIO can be reset to 0 in the main. When the system boots up, we see the GPIO is set and reset to 0 when the main is called. The time between the transition shows the time taken by the program to jump from the reset handler to the main.
+
+<img src="images/media/image10.png" style="width:6.5in;height:4.97222in" />
