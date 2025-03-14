@@ -51,13 +51,11 @@ Remove power to the Alif DevKit before beginning to attach the Joulescope:
 
 5.  Attach Joulescope Voltage+ terminal to pin 6 of J9, J10, or J11 (1.8V supply) 
 
-Now plug in the micro-USB cable to the “PRG USB” connector on the DevKit. You should see two serial ports appear on your machine. The first serial port is for SE UART and is meant to be used with the Alif Security Toolkit.
+Now plug in the micro-USB cable to the “PRG USB” connector on the DevKit. You should see one new serial port appear on your machine. Using the jumper configuration shown below, the serial port is connected to SE UART and is meant to be used with the Alif Security Toolkit. Use this configuration mainly when needing to flash the NVM, but it is also used to debug or update SE firmware.
 
 <img src="images/media/image2.jpeg" style="width:3.70139in;height:4.93518in" alt="A close-up of a circuit board AI-generated content may be incorrect." />
 
-The second port is configured for LP UART and is used by this demo.
-
-Open a terminal connecting to the second port and configure the speed for 115200.
+After using SE UART to flash an application to MRAM, applications running on the DevKit will use either UART-2 or LP-UART. For the purposes of this demo, LP-UART should be selected. Switch the pins to the LP-UART position after you have built and programmed this demo to the MCU. Note that LP-UART will use 115200 as the baud rate.
 
 <img src="images/media/image3.jpeg" style="width:3.82813in;height:5.10417in" alt="A close-up of a circuit board AI-generated content may be incorrect." />
 
@@ -71,7 +69,7 @@ git clone https://github.com/alifsemi/alif_powercycle_vscode-template.git
 
 \`\`\`
 
-In VSCode, press F1 and select “Tasks: Run Task”. From the list of tasks, select “First time pack installation”. VS Code will exercise cpackget to obtain the necessary Alif and Arm pack files. Once completed, you should see “Pack installation has been completed” message in the console.
+In VS Code, press F1 and select “Tasks: Run Task”. From the list of tasks, select “First time pack installation”. VS Code will exercise cpackget to obtain the necessary Alif and Arm pack files. Once completed, you should see “Pack installation has been completed” message in the console.
 
 If the pack installation is successful press F1 again and select "Tasks: Run Task".
 
@@ -85,38 +83,51 @@ Check that the build is successful. If the application was built press F1 once m
 
 **After Programming**
 
-After programming this demo to the Alif MCU, you will be prompted to enter the use case details. The first prompt asks for the "application duty cycle". This is used for the wake period; it defines how often the MCU will wake from stop mode. Entering 100, for example, the MCU will enter stop mode and wake every 100 milliseconds. The second prompt asks for the "time spent running while(1)". This defines how long the MCU will stay awake before returning to stop mode. This should be a fraction of the previous entry. The final prompt asks for the "number of inferences" to run on the NPU. Typically enter 1 here. Every ten power cycles, the application will exercise the NPU, and the length of time spent exercising the NPU depends on the number entered in the final prompt. Using a power analyzer, it should be possible to monitor the current as the MCU transitions between the two power states and calculate the average current draw.
+After programming this demo to the Alif MCU, switch the pins on the DevKit to select LP-UART rather than SE UART. Now open the DevKit’s serial port, note that LP-UART will use 115200 as the baud rate. With the serial port open press the reset button on the Alif MCU to start the application.
 
-<img src="images/media/image6.png" style="width:5.09054in;height:3.23628in" alt="A screenshot of a computer program AI-generated content may be incorrect." />
+When the application first runs you will be prompted to enter a few use-case details. The first prompt asks for the "application duty cycle". This is used for the wake period; it defines how often the MCU will wake from stop mode. Entering 100, for example, the MCU will enter STOP mode and wake up resuming GO mode every 100 milliseconds. The second prompt asks for the "time spent running while(1)". This defines how long the MCU will stay awake in GO mode before returning to STOP mode. This should be a fraction of the previous entry. The final prompt asks for the "number of inferences" to run on the NPU. Typically enter 1 here. Every ten power cycles, the application will exercise the NPU, and the length of time spent exercising the NPU depends on the number entered in the final prompt.
 
-The joulescope shows the power cycle when the application goes into the stop mode. The application duty cycle refers to time before the system boots back up to perform the NPU inferences and then moves back into the stop mode. A power spike is seen during NPU inferences.
+<img src="images/media/image6.png" style="width:5.09054in;height:3.19456in" alt="A screenshot of a computer program AI-generated content may be incorrect." />
 
-<img src="images/media/image7.png" style="width:6.5in;height:4.91944in" alt="A screen shot of a computer AI-generated content may be incorrect." />
+The Joulescope shows the Alif MCU cycle between GO and STOP power modes. The application duty cycle refers to time between power-on events. The time spent running refers to the time in GO mode performing a periodic task like sensor data collection. All other time is spent in STOP mode. Every 10 power-on events a spike in power is seen from the NPU performing inferences. Using a power analyzer, it should be possible to monitor the current as the MCU transitions between the power states and calculate the average current draw.
 
-<img src="images/media/image8.png" style="width:6.5in;height:4.96111in" alt="A screenshot of a computer AI-generated content may be incorrect." />
+<img src="images/media/image7.png" style="width:6.5in;height:4.93056in" alt="A screen shot of a computer AI-generated content may be incorrect." />
 
-**Measure time between reset handler and main: (Optional)**
+<img src="images/media/image8.png" style="width:6.5in;height:4.93056in" alt="A screenshot of a computer AI-generated content may be incorrect." />
 
-The joulescope can additionally be used to measure the time taken by the program to jump between the reset handler and to the main. This is an optional measurement and the code for this has been added to the project. The output and the input pins of the joulescope can be used for poking the available GPIO pins and these can be measured in the software.
+**Measure time between Wake Event -\> Reset Handler -\> Main: (Optional)**
 
-Setup:
+The Joulescope can additionally be used to measure the time taken by the program to jump between the wake event, to the M55-HE Reset Handler, to the M55-HE main function. This is an optional measurement. Although some of the code for this has been added to the project, some edits to the startup code are needed. The input pins of the Joulescope can then be used for aligning power measurement to marked points in software.
 
-1)Connect all the GND pins to the GND pins on the board. The GND pin is the pin 1 on J11, J10, J14.
+Hardware Setup:
 
-2)Connect OUT0 to Pin 7 on J11 which is the POR
+1\) Connect all the GND wires from the Joulescope to GND pins on the board. Refer to the schematic.
 
-3)Connect the Vref to Pin 6 on J11 which is the 1.8V Vref.
+2\) Connect the Joulescope Vref wire to pin 6 of J11 on the DevKit
 
-4)Connect IN0 pin2 of J10 which is the P5_0 (GPIO)
+3\) Connect the Joulescope IN0 wire to pin2 of J10 which is GPIO P5_0 on the MCU
 
-5)Connect IN1 pin 7 of J10 which is the P5_4 (GPIO)
+4\) Connect the Joulescope IN1 wire to pin 7 of J10 which is GPIO P5_4 on the MCU
 
-In the startup code(system_M55.c), declare a weak function. Please see below
+<img src="images/media/image9.jpeg" style="width:5.20139in;height:3.90104in" alt="A circuit board with many wires AI-generated content may be incorrect." />
 
-<img src="images/media/image9.png" style="width:3.25711in;height:0.61114in" alt="A black rectangular object with a black line AI-generated content may be incorrect." />
+<img src="images/media/image10.jpeg" style="width:5.26389in;height:3.94792in" alt="A close-up of a circuit board AI-generated content may be incorrect." />
 
-This function is defined in the app folder of the application in a separate C file (Refer to the app_init.c) Use this function to set any GPIO pin to 1 and set the direction of the GPIO as output. (in this example, P5_0 is set to 1).
+<img src="images/media/image11.jpeg" style="width:5.27778in;height:3.95833in" alt="A circuit board with wires connected to it AI-generated content may be incorrect." />
 
-This GPIO can be reset to 0 in the main. When the system boots up, we see the GPIO is set and reset to 0 when the main is called. The time between the transition shows the time taken by the program to jump from the reset handler to the main.
+Software Setup:
 
-<img src="images/media/image10.png" style="width:6.5in;height:4.97222in" />
+To edit the startup code, find the directory where the CMSIS Pack is installed. In the pack directory you’ll look for the file AlifSemiconductor\Ensemble\1.3.x\Device\common\source\system_M55.c
+
+In this file, there are two edits needed. The first is to simply declare app_init() as a weak function. The second edit is to make sure app_init() is called in the SystemInit() function of the same file. Both edits are shown below.
+
+| <img src="images/media/image12.png" style="width:3.26821in;height:0.68291in" alt="A black rectangular object with a black line AI-generated content may be incorrect." /> | <img src="images/media/image13.png" style="width:4.31967in;height:1.68759in" /> |
+|----|----|
+
+Another edit needed is in the gcc linker script.
+
+<img src="images/media/image14.png" style="width:2.56944in;height:2.10356in" />
+
+This function can now be defined in the application, and it is a useful way to insert any register pokes or early actions you desire as part of the reset handler. Refer to the app_init.c included with this demo. We use this function to set a GPIO pin to high in the reset handler and then set it back to low in main. When the system boots up, we measure the time it takes for the power to increase, indicating boot has started until the GPIO is set indicating the M55 is running. Measuring the time between when the GPIO is set to the time when the GPIO is clear indicates the time taken for code to copy and bss to initialize.
+
+<img src="images/media/image15.png" style="width:6.5in;height:4.93056in" />
