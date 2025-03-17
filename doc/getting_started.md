@@ -65,7 +65,7 @@ To start, clone the power cycle repo and then open the cloned directory in Visua
 
 \`\`\`
 
-git clone https://github.com/alifsemi/alif_powercycle_vscode-template.git
+git clone https://github.com/alifsemi/alif_vscode-powercycle-template
 
 \`\`\`
 
