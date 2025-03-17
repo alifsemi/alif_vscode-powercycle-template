@@ -31,7 +31,21 @@ Using a power analyzer, it is possible to monitor the MCU power draw in real-tim
 
 **Before Starting:**
 
-If you have not yet set up your Alif development environment using VS Code, please first visit the “[Getting Started with VSCode](https://github.com/alifsemi/alif_vscode-template/blob/main/doc/getting_started.md)” Guide. Ensure that you are able to build and run the blinky demo on your Alif DevKit before following this guide.
+If you have not yet set up your Alif development environment using VS Code, please first visit the “[Getting Started with VSCode](https://github.com/alifsemi/alif_vscode-template/blob/main/doc/getting_started.md)” Guide. 
+
+Configure the device in tools config script:
+
+The Se tools need to be configured to the correct device (Balletto or Ensemble) before flashing the software.  Go to the app_release_exec in the SE tools directory (app-release-exec-windows-SE_FW_1.103.001_DEV\app-release-exec). Run the tools-config.exe script and select the Balletto device.
+
+Choose Option 1 to select the Part #
+
+Choose Option 2 to select the Balletto device.
+
+Choose Option 1 to select the version of the device in the available options. Refer to the snapshot below:
+
+<img src="images/media/image16.png" style="width:6.5in;height:4.93056in" />
+
+After the above steps, please ensure that you can build and run the blinky demo on your Alif DevKit before following this guide for the power cycle demo.
 
 **Hardware Quick Start:**
 
@@ -65,7 +79,7 @@ To start, clone the power cycle repo and then open the cloned directory in Visua
 
 \`\`\`
 
-git clone https://github.com/alifsemi/alif_powercycle_vscode-template.git
+git clone https://github.com/alifsemi/alif_vscode-powercycle-template
 
 \`\`\`
 

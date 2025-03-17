@@ -18,17 +18,13 @@
             "windows": {
                 "command": [
                     "cbuild ${command:cmsis-csolution.getSolutionPath} --clean;",
-                    "rm -Force ./blinky/*.cbuild.yml;",
-                    "rm -Force ./hello/*.cbuild.yml;",
-                    "rm -Force ./hello_rtt/*.cbuild.yml;"
+                    "rm -Force ./powercycle/*.cbuild.yml;",
                 ]
             },
             "linux": {
                 "command": [
                     "cbuild ${command:cmsis-csolution.getSolutionPath} --clean;",
-                    "rm -f ./blinky/*.cbuild.yml;",
-                    "rm -f ./hello/*.cbuild.yml;",
-                    "rm -f ./hello_rtt/*.cbuild.yml;"
+                    "rm -f ./powercycle/*.cbuild.yml;",
                 ]
             },
             "problemMatcher": []
