@@ -81,15 +81,19 @@ To start, clone the power cycle repo and then open the cloned directory in Visua
 
 git clone https://github.com/alifsemi/alif_vscode-powercycle-template
 
+git submodule update --init
+
 \`\`\`
+
+Ensure to choose the E1C as target in the build context.
+
+<img src="images/media/image4.png" style="width:6.19476in;height:2.50707in" alt="A screenshot of a computer AI-generated content may be incorrect." />
 
 In VS Code, press F1 and select “Tasks: Run Task”. From the list of tasks, select “First time pack installation”. VS Code will exercise cpackget to obtain the necessary Alif and Arm pack files. Once completed, you should see “Pack installation has been completed” message in the console.
 
 If the pack installation is successful press F1 again and select "Tasks: Run Task".
 
-Press the build option from the CMSIS solution to build the environment. Ensure to choose the E1C as target in the build context.
-
-<img src="images/media/image4.png" style="width:6.19476in;height:2.50707in" alt="A screenshot of a computer AI-generated content may be incorrect." />
+Press the build option from the CMSIS solution to build the environment. 
 
 <img src="images/media/image5.png" style="width:3.04167in;height:0.94444in" />
 
