@@ -2,7 +2,7 @@
 
 Application Note
 
-**E1C Power cycle demo**
+**E1C/B1 Power cycle demo**
 
 **Version 1.0**
 
@@ -35,7 +35,7 @@ If you have not yet set up your Alif development environment using VS Code, plea
 
 Configure the device in tools config script:
 
-The Se tools need to be configured to the correct device (Balletto or Ensemble) before flashing the software.  Go to the app_release_exec in the SE tools directory (app-release-exec-windows-SE_FW_1.103.001_DEV\app-release-exec). Run the tools-config.exe script and select the Balletto device.
+The SE tools need to be configured to the correct device (Balletto or Ensemble) before flashing the software.  Go to the app_release_exec in the SE tools directory (app-release-exec-windows-SE_FW_1.103.001_DEV\app-release-exec). Run the tools-config.exe script and select the Balletto device.
 
 Choose Option 1 to select the Part #
 
@@ -85,7 +85,7 @@ git submodule update --init
 
 \`\`\`
 
-Ensure to choose the E1C as target in the build context.
+Ensure to choose the E1C/B1 as target in the build context.
 
 <img src="images/media/image4.png" style="width:6.19476in;height:2.50707in" alt="A screenshot of a computer AI-generated content may be incorrect." />
 
